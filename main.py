@@ -8,20 +8,10 @@ from classes import Board, Tile
 from classification import capture_board, crop_board, classify_board
 from rules import r1, r2
 
-# Setting the timeout between clicks (FASTER CLICKING!!!!!!!)
 pyautogui.PAUSE = 0
-# or do this
-# pyautogui.click(clicks=10, interval=0)  # 10 rapid clicks etc...
-
 
 # Global Variables
-TOP_LEFT_X = 1046
-TOP_LEFT_Y = 202
-TILE_SIZE = 16
-ROWS = 9
-COLS = 9
-NUM_MINES = 10
-
+import global_variables
 classification_templates = {
     "1": cv2.cvtColor(cv2.imread("assets/1.png"), cv2.COLOR_BGR2RGB),
     "2": cv2.cvtColor(cv2.imread("assets/2.png"), cv2.COLOR_BGR2RGB),
@@ -33,7 +23,8 @@ classification_templates = {
     "8": cv2.cvtColor(cv2.imread("assets/8.png"), cv2.COLOR_BGR2RGB),
     "E": cv2.cvtColor(cv2.imread("assets/empty.png"), cv2.COLOR_BGR2RGB),
     "H": cv2.cvtColor(cv2.imread("assets/hidden.png"), cv2.COLOR_BGR2RGB),
-    "F": cv2.cvtColor(cv2.imread("assets/flag.png"), cv2.COLOR_BGR2RGB)
+    "F": cv2.cvtColor(cv2.imread("assets/flag.png"), cv2.COLOR_BGR2RGB),
+    "M": cv2.cvtColor(cv2.imread("assets/mine.png"), cv2.COLOR_BGR2RGB)
 }
 
 should_exit = False
@@ -50,22 +41,49 @@ if __name__  == "__main__":
     print("Press 'q' to stop the program.")
 
     # Start a thread to monitor for the exit key
-    # exit_thread = threading.Thread(target=check_for_exit)
-    # exit_thread.daemon = True # Thread will exit when main program exits
-    # exit_thread.start()
+    exit_thread = threading.Thread(target=check_for_exit)
+    exit_thread.daemon = True # Thread will exit when main program exits
+    exit_thread.start()
 
     # Start the game
-    pyautogui.moveTo(TOP_LEFT_X + ((TILE_SIZE // 2) * COLS) , TOP_LEFT_Y + ((TILE_SIZE // 2) * ROWS)) # Start on the center tile
+    pyautogui.moveTo(global_variables.TOP_LEFT_X + ((global_variables.TILE_SIZE // 2) * global_variables.COLS) , global_variables.TOP_LEFT_Y + ((global_variables.TILE_SIZE // 2) * global_variables.ROWS)) # Start on the center tile
     pyautogui.click()
 
-    # while not should_exit:
-    board_image = capture_board(COLS, ROWS, TILE_SIZE, TOP_LEFT_X, TOP_LEFT_Y)
-    tiles = crop_board(board_image, ROWS, COLS, TILE_SIZE)
-    board_state = classify_board(tiles, classification_templates)
-    # board_state.display()
-    r1(board_state)
-    r2(board_state)
-    # time.sleep(1)
+    time.sleep(0.1)
+
+    while not should_exit:
+        board_image = capture_board(global_variables.COLS, global_variables.ROWS, global_variables.TILE_SIZE, global_variables.TOP_LEFT_X, global_variables.TOP_LEFT_Y)
+        # board_image.save("test.png") # Use to debug board capture
+        tiles = crop_board(board_image, global_variables.ROWS, global_variables.COLS, global_variables.TILE_SIZE)
+        board_state = classify_board(tiles, classification_templates)
+        board_state.display()
+
+        if not board_state.has_mines():
+            tiles_to_flag = r1(board_state)
+            board_state.flag_tiles(tiles_to_flag)
+            tiles_to_clear = r2(board_state)
+            board_state.clear_tiles(tiles_to_clear)
+            time.sleep(0.1) 
+
+            if len(tiles_to_flag) == 0 and len(tiles_to_clear) == 0:
+                if board_state.has_hidden_tiles():
+                    print("No more actions available. Restarting...")
+                    board_state.reset()
+                    time.sleep(0.5)
+                    pyautogui.moveTo(global_variables.TOP_LEFT_X + ((global_variables.TILE_SIZE // 2) * global_variables.COLS) , global_variables.TOP_LEFT_Y + ((global_variables.TILE_SIZE // 2) * global_variables.ROWS)) # Start on the center tile
+                    pyautogui.click()
+                    time.sleep(0.1)
+                else:
+                    print("Game Complete. Exiting...")
+                    should_exit = True
+                    break
+        else:
+            print("A mine has exploded. Restarting...")
+            board_state.reset()
+            time.sleep(0.5)
+            pyautogui.moveTo(global_variables.TOP_LEFT_X + ((global_variables.TILE_SIZE // 2) * global_variables.COLS) , global_variables.TOP_LEFT_Y + ((global_variables.TILE_SIZE // 2) * global_variables.ROWS)) # Start on the center tile
+            pyautogui.click()
+            time.sleep(0.1)
 
 
 

@@ -1,4 +1,3 @@
-#! python3
 import pyautogui, sys
 print('Press Ctrl-C to quit.')
 try:
