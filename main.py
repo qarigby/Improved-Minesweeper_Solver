@@ -7,6 +7,7 @@ import time
 from classes import Board, Tile
 from classification import capture_board, crop_board, classify_board
 from rules import r1, r2
+from probability import ProbabilitySolver
 
 pyautogui.PAUSE = 0
 
@@ -69,12 +70,23 @@ if __name__  == "__main__":
 
             if len(tiles_to_flag) == 0 and len(tiles_to_clear) == 0: # If no more moves detected
                 if board_state.has_hidden_tiles(): # If the board still containes hidden tiles
-                    print("No more actions available. Restarting...")
-                    board_state.reset() # Restart the game
-                    time.sleep(0.5)
-                    pyautogui.moveTo(global_variables.TOP_LEFT_X + ((global_variables.TILE_SIZE // 2) * global_variables.COLS) , global_variables.TOP_LEFT_Y + ((global_variables.TILE_SIZE // 2) * global_variables.ROWS)) # Start on the center tile
-                    pyautogui.click()
-                    time.sleep(0.1)
+                    solver = ProbabilitySolver(board_state)
+                    tile, prob = solver.get_best_tile()
+                    print(f"Best guess: {tile} with mine probability {prob:.2%}")
+
+
+
+
+
+
+
+
+                    # print("No more actions available. Restarting...")
+                    # board_state.reset() # Restart the game
+                    # time.sleep(0.5)
+                    # pyautogui.moveTo(global_variables.TOP_LEFT_X + ((global_variables.TILE_SIZE // 2) * global_variables.COLS) , global_variables.TOP_LEFT_Y + ((global_variables.TILE_SIZE // 2) * global_variables.ROWS)) # Start on the center tile
+                    # pyautogui.click()
+                    # time.sleep(0.1)
                 else: # Means the game is complete
                     print("Game Complete. Exiting...")
                     should_exit = True

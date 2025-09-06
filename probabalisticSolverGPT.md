@@ -312,44 +312,38 @@ class ProbabilitySolver:
         for config in configs:
             for i, val in enumerate(config):
                 if val == 1:
-                    mine
-```
+                    mine_counts[i] += 1
+        num_configs = len(configs)
+        probabilities = {
+            tile_list[i]: mine_counts[i] / num_configs
+            for i in range(len(tile_list))
+        }
+        return probabilities
 
+    def get_best_tile(self):
+        probabilities = self.estimate_probabilities()
+        unopened = set(self.board.get_unopened_tiles())
+        frontier_tiles = set(probabilities.keys())
+        non_frontier = unopened - frontier_tiles
 
-\_counts\[i] += 1
+        if probabilities:
+            best_tile = min(probabilities.items(), key=lambda x: x[1])
+            min_prob = best_tile[1]
+        else:
+            best_tile = None
+            min_prob = None
 
-```
-    num_configs = len(configs)
-    probabilities = {
-        tile_list[i]: mine_counts[i] / num_configs
-        for i in range(len(tile_list))
-    }
-    return probabilities
+        if non_frontier:
+            remaining_mines = self.board.get_remaining_mines()
+            remaining_tiles = len(unopened)
+            global_prob = remaining_mines / remaining_tiles if remaining_tiles > 0 else 1.0
 
-def get_best_tile(self):
-    probabilities = self.estimate_probabilities()
-    unopened = set(self.board.get_unopened_tiles())
-    frontier_tiles = set(probabilities.keys())
-    non_frontier = unopened - frontier_tiles
-
-    if probabilities:
-        best_tile = min(probabilities.items(), key=lambda x: x[1])
-        min_prob = best_tile[1]
-    else:
-        best_tile = None
-        min_prob = None
-
-    if non_frontier:
-        remaining_mines = self.board.get_remaining_mines()
-        remaining_tiles = len(unopened)
-        global_prob = remaining_mines / remaining_tiles if remaining_tiles > 0 else 1.0
-
-        if min_prob is None or global_prob < min_prob:
-            return list(non_frontier)[0], global_prob
+            if min_prob is None or global_prob < min_prob:
+                return list(non_frontier)[0], global_prob
+            else:
+                return best_tile
         else:
             return best_tile
-    else:
-        return best_tile
 ```
 
 ````

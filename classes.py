@@ -14,7 +14,7 @@ class Tile:
         self.y = y
         self.label = label # Raw label from classifier
         self.confidence = confidence # Matching score from template matching
-        self.is_revealed = label == 'H'
+        # self.is_revealed = label == 'H'
         self.is_flagged = label == 'F'
         self.number = int(label) if label.isdigit() else None
 
