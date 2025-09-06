@@ -7,7 +7,7 @@ import time
 from classes import Board, Tile
 from classification import capture_board, crop_board, classify_board
 from rules import r1, r2
-from probability import ProbabilitySolver
+from prob_helpers import r3
 
 pyautogui.PAUSE = 0
 
@@ -70,17 +70,11 @@ if __name__  == "__main__":
 
             if len(tiles_to_flag) == 0 and len(tiles_to_clear) == 0: # If no more moves detected
                 if board_state.has_hidden_tiles(): # If the board still containes hidden tiles
-                    solver = ProbabilitySolver(board_state)
-                    tile, prob = solver.get_best_tile()
-                    print(f"Best guess: {tile} with mine probability {prob:.2%}")
-
-
-
-
-
-
-
-
+                    tile_to_clear = r3(board_state)
+                    print(f"Clearing tile at {tile_to_clear}")
+                    print(tile_to_clear)
+                    board_state.clear_tiles(tile_to_clear)
+                    time.sleep(0.1)
                     # print("No more actions available. Restarting...")
                     # board_state.reset() # Restart the game
                     # time.sleep(0.5)
@@ -91,7 +85,7 @@ if __name__  == "__main__":
                     print("Game Complete. Exiting...")
                     should_exit = True
                     break
-        else: # If a mine has been clicked, restard the game
+        else: # If a mine has been clicked, restart the game
             print("A mine has exploded. Restarting...")
             board_state.reset()
             time.sleep(0.5)
