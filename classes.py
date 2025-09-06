@@ -27,12 +27,10 @@ class Tile:
     
     @property
     def is_unrevealed(self):
-        # if self.label in ['H']:
-        #     return True
-        # return False
-        return not self.is_revealed # Need to check if this works before deleting the above code
-
-
+        if self.label in ['H']:
+            return True
+        return False
+    
 
 class Board:
     def __init__(self, rows, cols):
