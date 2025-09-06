@@ -14,10 +14,8 @@ class Tile:
         self.y = y
         self.label = label # Raw label from classifier
         self.confidence = confidence # Matching score from template matching
-        # self.is_revealed = label not in ['H', 'E'] # 'H' = hidden, 'E' = empty
         self.is_revealed = label == 'H'
         self.is_flagged = label == 'F'
-        # self.is_mine = label == 'M'
         self.number = int(label) if label.isdigit() else None
 
     def __repr__(self):
@@ -29,10 +27,10 @@ class Tile:
     
     @property
     def is_unrevealed(self):
-        if self.label in ['H']:
-            return True
-        return False
-        return not self.is_revealed and not self.is_flagged
+        # if self.label in ['H']:
+        #     return True
+        # return False
+        return not self.is_revealed # Need to check if this works before deleting the above code
 
 
 
@@ -112,6 +110,7 @@ class Board:
         # Change for different levels
         # pyautogui.moveTo(global_variables.RESTART_X_BEGINNER, global_variables.RESTART_Y_BEGINNER)
         # pyautogui.moveTo(global_variables.RESTART_X_INTERMEDIATE, global_variables.RESTART_Y_INTERMEDIATE)
+
         pyautogui.moveTo(global_variables.RESTART_X_EXPERT, global_variables.RESTART_Y_EXPERT)
         pyautogui.click()
 
